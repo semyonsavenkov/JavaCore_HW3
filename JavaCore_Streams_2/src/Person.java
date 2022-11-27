@@ -83,7 +83,7 @@ public class Person {
     public static void getAdults(Collection<Person> persons) {
         List<String> stream = persons.stream()
                 .filter(x -> (x.age > 18 && x.age > 60 && x.sex == Sex.WOMAN) || (x.age > 18 && x.age > 65 && x.sex == Sex.MAN))
-               // .filter(x -> x.age > 18 && x.age > 65 && x.sex == Sex.MAN)
+                .filter(x -> x.education == Education.HIGHER)
                 .sorted(Comparator.comparing(Person::getFamily))
                 .map(Person::toString)
                 .collect(Collectors.toList());
