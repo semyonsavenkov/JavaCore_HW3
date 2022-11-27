@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Person {
@@ -67,6 +68,27 @@ public class Person {
                 .filter(x -> x.age < 18 );
         long result = stream.count();
         return result;
+    }
+
+    public static void getRecruits(Collection<Person> persons) {
+        List<String> stream = persons.stream()
+                .filter(x -> x.age > 18 )
+                .filter(x -> x.age < 27)
+                .filter(x -> x.sex == Sex.MAN)
+                .map(Person::getFamily)
+                .collect(Collectors.toList());
+        System.out.println(stream);
+    }
+
+    public static void getAdults(Collection<Person> persons) {
+        List<String> stream = persons.stream()
+                .filter(x -> (x.age > 18 && x.age > 60 && x.sex == Sex.WOMAN) || (x.age > 18 && x.age > 65 && x.sex == Sex.MAN))
+               // .filter(x -> x.age > 18 && x.age > 65 && x.sex == Sex.MAN)
+                .sorted(Comparator.comparing(Person::getFamily))
+                .map(Person::toString)
+                .collect(Collectors.toList());
+        System.out.println(stream);
+
     }
 
 }
