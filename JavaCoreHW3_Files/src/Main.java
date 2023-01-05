@@ -4,6 +4,7 @@ import java.time.ZonedDateTime;
 public class Main {
     public static void main(String[] args) {
 
+        //тест
         //creating a StringBuilder for logging
         StringBuilder logSB = new StringBuilder();
 
