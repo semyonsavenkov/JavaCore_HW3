@@ -1,7 +1,10 @@
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class Main {
     public static void main(String[] args) {
@@ -43,6 +46,39 @@ public class Main {
                 new GameProgress(94, 10, 2, 254.32);
         saveGame(gameProgress);
 
+        GameProgress gameProgress2 =
+                new GameProgress(85, 12, 3, 300.50);
+        saveGame(gameProgress2);
+
+        GameProgress gameProgress3 =
+                new GameProgress(70, 15, 5, 500.50);
+        saveGame(gameProgress3);
+
+        //adding saves to a zip archive
+        ArrayList listOfFiles = new ArrayList<String>();
+
+        File savesDir = new File("Games/savegames");
+        if (savesDir.isDirectory()) {
+            for (File item : savesDir.listFiles()) {
+                if (! item.getAbsolutePath().contains(".zip")) {
+                    listOfFiles.add(item.getAbsolutePath());
+
+                }
+            }
+            zipFiles(listOfFiles);
+
+            //deleting non-zip files after archivation
+            for (File item : savesDir.listFiles()) {
+                if (! item.getAbsolutePath().contains(".zip")) {
+                    item.delete();
+                }
+            }
+
+        }
+
+
+
+
     }
 
     private static void createFile(String fileName, StringBuilder logSB) {
@@ -74,10 +110,9 @@ public class Main {
         logSB.append(logText);
     }
 
-    public static void saveGame ( GameProgress currentGameProgress) {
+    public static void saveGame (GameProgress currentGameProgress) {
 
-        SimpleDateFormat myDF = new SimpleDateFormat("yyyy.MM.dd hh:mm:ss");
-        String formatedDate = myDF.format(new Date());
+        String formatedDate = getStringDate();
 
         // откроем выходной поток для записи в файл
         try (FileOutputStream fos = new FileOutputStream("Games/savegames/save" + formatedDate + ".dat");
@@ -87,6 +122,36 @@ public class Main {
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
+    }
+
+    public static void zipFiles(ArrayList<String> listOfFiles) {
+
+        String formatedDate = getStringDate();
+
+        try (ZipOutputStream zout = new ZipOutputStream(
+                new FileOutputStream("Games/savegames/save" + formatedDate + "archivedsaves.zip"))
+        ) {
+            for (String currentFile : listOfFiles) {
+
+                try (FileInputStream fis = new FileInputStream(currentFile)) {
+                    ZipEntry entry = new ZipEntry(currentFile);
+                    zout.putNextEntry(entry);
+                    byte[] buffer = new byte[fis.available()];
+                    fis.read(buffer);
+                    zout.closeEntry();
+                } catch (IOException exception) {
+                    System.out.println(exception.getMessage());
+                }
+            }
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+
+    }
+
+    public static String getStringDate () {
+        SimpleDateFormat myDF = new SimpleDateFormat("yyyy.MM.dd hh:mm:ss");
+        return myDF.format(new Date());
     }
 
 }
