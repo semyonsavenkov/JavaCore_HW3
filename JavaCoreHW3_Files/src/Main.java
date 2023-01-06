@@ -94,10 +94,10 @@ public class Main {
         String logText = "";
         try {
             if (myFile.createNewFile())
-                logText = ZonedDateTime.now() + " создан файл " + fileName + "\n";
+                logText = getStringDate() + " создан файл " + fileName + "\n";
             System.out.println(logText);
         } catch (IOException ex) {
-            logText = ZonedDateTime.now() + " не удалось создать файл " + fileName + "\n" + ex.getMessage() + "\n";
+            logText = getStringDate() + " не удалось создать файл " + fileName + "\n" + ex.getMessage() + "\n";
             System.out.println(logText);
         }
 
@@ -109,10 +109,10 @@ public class Main {
         File myDir = new File(folderName);
         String logText = "";
         if (myDir.mkdir()) {
-            logText = ZonedDateTime.now() + " создан каталог " + myDir.getAbsolutePath() + "\n";
+            logText = getStringDate() + " создан каталог " + myDir.getAbsolutePath() + "\n";
             System.out.println(logText);
         } else {
-            logText = ZonedDateTime.now() + " не удалось создать каталог " + folderName + "\n";
+            logText = getStringDate() + " не удалось создать каталог " + folderName + "\n";
             System.out.println(logText);
         }
         logSB.append(logText);
@@ -122,7 +122,8 @@ public class Main {
 
         String formatedDate = getStringDate();
 
-        try (FileOutputStream fos = new FileOutputStream("Games/savegames/save" + formatedDate + ".dat");
+        try (FileOutputStream fos = new FileOutputStream("Games/savegames/save" + formatedDate +
+                currentGameProgress.hashCode() +  ".dat");
              ObjectOutputStream oos = new ObjectOutputStream(fos)) {
             oos.writeObject(currentGameProgress);
         } catch (Exception ex) {
@@ -189,5 +190,4 @@ public class Main {
         SimpleDateFormat myDF = new SimpleDateFormat("yyyy.MM.dd hh:mm:ss");
         return myDF.format(new Date());
     }
-
 }
