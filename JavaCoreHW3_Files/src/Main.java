@@ -4,6 +4,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class Main {
@@ -60,7 +61,7 @@ public class Main {
         File savesDir = new File("Games/savegames");
         if (savesDir.isDirectory()) {
             for (File item : savesDir.listFiles()) {
-                if (! item.getAbsolutePath().contains(".zip")) {
+                if (! item.getName().contains(".zip")) {
                     listOfFiles.add(item.getAbsolutePath());
 
                 }
@@ -69,16 +70,23 @@ public class Main {
 
             //deleting non-zip files after archivation
             for (File item : savesDir.listFiles()) {
-                if (! item.getAbsolutePath().contains(".zip")) {
+                if (! item.getName().contains(".zip")) {
                     item.delete();
                 }
             }
 
+            for (File item : savesDir.listFiles()) {
+                if (item.getName().contains(".zip")) {
+                    openZip(savesDir.getAbsolutePath(), item.getAbsolutePath());
+                }
+            }
+
+            for (File item : savesDir.listFiles()) {
+                if (item.getName().contains(".dat")) {
+                    openProgress(item.getAbsolutePath());
+                }
+            }
         }
-
-
-
-
     }
 
     private static void createFile(String fileName, StringBuilder logSB) {
@@ -114,10 +122,8 @@ public class Main {
 
         String formatedDate = getStringDate();
 
-        // откроем выходной поток для записи в файл
         try (FileOutputStream fos = new FileOutputStream("Games/savegames/save" + formatedDate + ".dat");
              ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-            // запишем экземпляр класса в файл
             oos.writeObject(currentGameProgress);
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
@@ -138,6 +144,7 @@ public class Main {
                     zout.putNextEntry(entry);
                     byte[] buffer = new byte[fis.available()];
                     fis.read(buffer);
+                    zout.write(buffer);
                     zout.closeEntry();
                 } catch (IOException exception) {
                     System.out.println(exception.getMessage());
@@ -147,6 +154,35 @@ public class Main {
             System.out.println(ex.getMessage());
         }
 
+    }
+
+    public static void openZip(String directoryPath, String fileZipPath) {
+        try (ZipInputStream zin = new ZipInputStream(new FileInputStream(fileZipPath))) {
+            ZipEntry entry;
+            String name;
+            while ((entry = zin.getNextEntry()) != null) {
+                name = entry.getName(); // получим название файла // распаковка
+                FileOutputStream fout = new FileOutputStream(name);
+                for (int c = zin.read(); c != -1; c = zin.read()) {
+                    fout.write(c);
+                }
+                fout.flush();
+                zin.closeEntry();
+                fout.close();
+            }
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage()); }
+    }
+
+    public static void openProgress (String path) {
+        GameProgress gameProgress = null;
+        try (FileInputStream fis = new FileInputStream(path);
+             ObjectInputStream ois = new ObjectInputStream(fis)) {
+            gameProgress = (GameProgress) ois.readObject();
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+        System.out.println(gameProgress);
     }
 
     public static String getStringDate () {
