@@ -1,5 +1,7 @@
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
+import java.util.Date;
 
 public class Main {
     public static void main(String[] args) {
@@ -36,6 +38,11 @@ public class Main {
             System.out.println(myEx.getMessage());
         }
 
+        //creating gameProgress and saving it to a file
+        GameProgress gameProgress =
+                new GameProgress(94, 10, 2, 254.32);
+        saveGame(gameProgress);
+
     }
 
     private static void createFile(String fileName, StringBuilder logSB) {
@@ -65,6 +72,21 @@ public class Main {
             System.out.println(logText);
         }
         logSB.append(logText);
+    }
+
+    public static void saveGame ( GameProgress currentGameProgress) {
+
+        SimpleDateFormat myDF = new SimpleDateFormat("yyyy.MM.dd hh:mm:ss");
+        String formatedDate = myDF.format(new Date());
+
+        // откроем выходной поток для записи в файл
+        try (FileOutputStream fos = new FileOutputStream("Games/savegames/save" + formatedDate + ".dat");
+             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+            // запишем экземпляр класса в файл
+            oos.writeObject(currentGameProgress);
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 
 }
